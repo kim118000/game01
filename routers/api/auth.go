@@ -1,9 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/kim118000/game2023/pkg/app"
 	"github.com/kim118000/game2023/pkg/constant"
+	"github.com/kim118000/game2023/pkg/setting"
 	"github.com/kim118000/game2023/pkg/util"
 	"github.com/kim118000/game2023/services/auth_service"
 	"net/http"
@@ -80,6 +82,25 @@ func Register(c *gin.Context) {
 	if err != nil {
 		appG.Response(http.StatusBadRequest, constant.INVALID_PARAMS, nil)
 		return
+	}
+
+	appG.Response(http.StatusOK, constant.SUCCESS, nil)
+}
+
+func UploadFile(c *gin.Context) {
+	var appG = app.Gin{C: c}
+	var fp = setting.AppSetting.FilePath
+	form, err := c.MultipartForm()
+	if err != nil {
+		appG.Response(http.StatusBadRequest, constant.INVALID_PARAMS, nil)
+	}
+
+	//通过字段名映射
+	f := form.File["file"]
+	//for range遍历文件
+	for _, file := range f {
+		fmt.Println(file.Filename)
+		c.SaveUploadedFile(file, fp+file.Filename)
 	}
 
 	appG.Response(http.StatusOK, constant.SUCCESS, nil)
